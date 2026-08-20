@@ -1,8 +1,7 @@
-// Service Worker-এ Firebase v9/v10 Compat লাইব্রেরি ব্যবহার করতে হয়
-importScripts("https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js");
-importScripts("https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging-compat.js");
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
 
-// একই Config ডেটা এখানেও বসান
+// আপনার প্রজেক্টের আসল তথ্য এখানে বসান
 const firebaseConfig = {
   apiKey: "AIzaSyB97aTTVs3LHN0E0EzVTb-xl5AOEYR-SN8",
   authDomain: "acode-fcm-test.firebaseapp.com",
@@ -13,17 +12,39 @@ const firebaseConfig = {
   measurementId: "G-NXY2FGPEZ5"
 };
 
-const messaging = firebase.messaging();
+const app = initializeApp(firebaseConfig);
+const messaging = getMessaging(app);
 
-// Background Message Handler (যখন ট্যাব বন্ধ বা মিনিমাইজ থাকবে)
-messaging.onBackgroundMessage((payload) => {
-  console.log("[firebase-messaging-sw.js] Background message:", payload);
-  
-  const notificationTitle = payload.notification.title;
-  const notificationOptions = {
-    body: payload.notification.body,
-    icon: payload.notification.icon || "https://via.placeholder.com/192"
-  };
+const btnToken = document.getElementById("btn-token");
+const tokenBox = document.getElementById("token-box");
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+btnToken.addEventListener("click", async () => {
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission === "granted") {
+      const registration = await navigator.serviceWorker.register("./firebase-messaging-sw.js");
+      
+      const currentToken = await getToken(messaging, {
+        vapidKey: "BKVS5AvgSACcLUhz3A7b1ChOd0NGueFhiLn6sdAuQniAvo_Qecr1SsCJvAfmS4zE3Km-MPehfQ-AjavU335G-rI", // ধাপ ১-এর জেনারেট করা VAPID Key
+        serviceWorkerRegistration: registration
+      });
+
+      if (currentToken) {
+        tokenBox.value = currentToken;
+        alert("FCM Token Generated Successfully!");
+      } else {
+        alert("No registration token available.");
+      }
+    } else {
+      alert("Notification permission denied!");
+    }
+  } catch (error) {
+    console.error(error);
+    alert("Error: " + error.message);
+  }
+});
+
+// Foreground Handler
+onMessage(messaging, (payload) => {
+  alert(`${payload.notification.title}\n${payload.notification.body}`);
 });
