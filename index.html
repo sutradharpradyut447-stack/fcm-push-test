@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FCM Web Push Test</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; text-align: center; }
+    button { padding: 12px 20px; font-size: 16px; margin: 10px; cursor: pointer; }
+    textarea { width: 100%; height: 120px; margin-top: 10px; word-break: break-all; }
+  </style>
+</head>
+<body>
+  <h2>FCM Push Notification Test</h2>
+  <button id="btn-permission">Enable Notification & Get Token</button>
+  
+  <p><strong>Your FCM Token:</strong></p>
+  <textarea id="token-box" readonly placeholder="FCM Token will appear here..."></textarea>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
